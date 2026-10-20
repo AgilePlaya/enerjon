@@ -2,9 +2,10 @@
 
 ## 1. Executive Summary & Objective
 
-**Enerjon** is an offline-first, mobile-exclusive utility application designed for smartphone users to monitor and optimize fuel consumption, vehicle mileage, operating costs, and efficiency trends. 
+**Enerjon** is an offline-first, mobile-exclusive utility application designed for smartphone users to monitor and optimize fuel consumption, vehicle mileage, operating costs, and efficiency trends.
 
 ### Key Product Principles
+
 - **Offline-First, Zero Latency**: Vehicle owners frequently log fuel stops at underground or remote filling stations where cellular network signals are degraded. The app must execute all read/write actions against a local SQLite database with zero perceived latency.
 - **Vercel Cloud Backup**: Automatic and on-demand synchronization to Vercel Serverless / Cloud Postgres ensures user records are preserved, restorable, and safe against phone loss or device transfer.
 - **Expo Go Testability**: The entire codebase is strictly engineered to run inside **Expo Go** on physical Android and iOS phones during active development and dogfooding.
@@ -29,7 +30,8 @@
 | **Cloud Database** | **Vercel Postgres (Neon Serverless)** | Supabase, Firebase Firestore, DynamoDB | • Serverless PostgreSQL with connection pooling via `@vercel/postgres`.<br>• Relational structure mirrors local SQLite schema, simplifying bidirectional JSON/SQL sync.<br>• One-click provisioning in Vercel project dashboard. |
 
 ### B. Why TypeScript + React Native (Expo) is the Most Optimal Language
-1. **Unrivaled Expo Go Integration**: 
+
+1. **Unrivaled Expo Go Integration**:
    The user explicitly requested testing via Expo Go on physical phones. Expo Go only runs React Native JavaScript/TypeScript bundles. Developing in Dart/Flutter, Swift, or Kotlin would completely disqualify Expo Go testing and require running heavy local emulator stacks or tethered Xcode/Android Studio debuggers.
 2. **Shared Data Contracts**:
    The domain models (`Vehicle`, `FuelEntry`, `SyncPayload`, `EfficiencyStats`) are defined once in TypeScript and consumed by both:
@@ -63,6 +65,7 @@
 ### B. Screen-by-Screen Visual Architecture
 
 #### 1. Global Navigation & Floating Dock (`app/(tabs)/_layout.tsx`)
+
 - **Top Header (`AppHeader.tsx`)**:
   - Left: Enerjon brand icon (cyan gauge/speedometer) + bold "Enerjon" wordmark.
   - Right action cluster:
@@ -84,6 +87,7 @@
 ---
 
 #### 2. Screen 1: Dashboard (`Updated Dashboard.png` -> `app/(tabs)/index.tsx`)
+
 1. **Efficiency Index Card**:
    - Hero metric: `18.2 km/L` (default Indian unit: kilometers per liter) in bold display typography.
    - Trend pill: `+12% vs last month` with an upward sparkline icon in green/cyan.
@@ -109,6 +113,7 @@
 ---
 
 #### 3. Screen 2: New Refueling Entry (`New Entry.png` -> `app/(tabs)/new-entry.tsx`)
+
 1. **Header & Context**:
    - Title: `New Refueling`.
    - Subtitle: `Log your latest trip to the station to track your vehicle's efficiency.`
@@ -131,6 +136,7 @@
 ---
 
 #### 4. Screen 3: History & Logs (`History.png` -> `app/(tabs)/history.tsx`)
+
 1. **Header & Search**:
    - Title: `Logs`.
    - Subtitle: `Tracking your vehicle energy consumption.`
@@ -152,6 +158,7 @@
 ---
 
 #### 5. Screen 4: Statistics & Analytics (`Statistics.png` -> `app/(tabs)/statistics.tsx`)
+
 1. **Performance Overview Header**:
    - Super-title: `PERFORMANCE OVERVIEW`.
    - Dual-tone gradient title: `Efficiency Trends` ("Efficiency" in white, "Trends" in glowing cyan).
@@ -184,6 +191,7 @@
 ---
 
 #### 6. Cloud Backup & Sync Modal (`app/modal.tsx`)
+
 - Triggered via the cloud icon in `AppHeader`.
 - Displays:
   - Local Database Status: Total entries stored, database size in KB, pending unsynced records.
@@ -250,6 +258,7 @@ CREATE INDEX IF NOT EXISTS idx_fuel_entries_sync ON fuel_entries(synced_at);
 ### B. Fuel Efficiency Calculation Engine (`src/services/calculations.ts`)
 
 Fuel efficiency is calculated strictly using the **Full Tank to Full Tank standard methodology**:
+
 1. When a user fills their tank completely (`is_full_tank = 1`):
    $$\text{Distance Delta} = \text{Odometer}_{\text{current}} - \text{Odometer}_{\text{last full}}$$
    $$\text{Fuel Consumed} = \sum \text{Fuel Amount since last full tank}$$
@@ -286,11 +295,13 @@ sequenceDiagram
 ```
 
 ### A. Vercel Endpoint Specification (`api/sync/backup.ts`)
+
 - **Route**: `POST /api/sync/backup`
 - **Headers**:
   - `Content-Type: application/json`
   - `x-device-id: <uuid>` (Generated on first launch and preserved in `expo-secure-store` or SQLite `app_settings`)
 - **Payload Schema**:
+
   ```json
   {
     "device_id": "f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
@@ -326,7 +337,9 @@ sequenceDiagram
     ]
   }
   ```
+
 - **Response**:
+
   ```json
   {
     "success": true,
@@ -336,6 +349,7 @@ sequenceDiagram
   ```
 
 ### B. Vercel Endpoint Specification (`api/sync/restore.ts`)
+
 - **Route**: `GET /api/sync/restore?device_id=<uuid>`
 - **Response**: Complete snapshot of all records associated with that device/user to populate a blank device upon reinstallation.
 
@@ -344,6 +358,7 @@ sequenceDiagram
 ## 6. Expo Go Compatibility & Mobile-Only Safeguards
 
 ### A. Library Audit for Strict Expo Go Support
+
 To ensure zero build failures when opening the project via the Expo Go QR code on iOS and Android phones, only approved bundled libraries will be used:
 
 | Library | Supported in Expo Go? | Purpose in Enerjon |
@@ -361,6 +376,7 @@ To ensure zero build failures when opening the project via the Expo Go QR code o
 > **Strict Expo Go Rule**: Never install packages that require custom native C++/Java/Objective-C code or custom Android `build.gradle` alterations (e.g. `react-native-firebase`, `@shopify/react-native-skia`, `realm`, or `react-native-sqlite-storage`). Sticking to Expo SDK managed packages ensures 100% immediate compatibility with Expo Go.
 
 ### B. Mobile-Only Ergonomics
+
 1. **Locked Orientation**: Hardcoded to `portrait` in `app.json` to prevent disruptive screen rotation during gas station entry.
 2. **Dynamic Insets**: All screens wrapped in `SafeAreaView` with top and bottom paddings respecting device status bars and iOS home indicators.
 3. **Keyboard Handling**: Form on `New Entry` screen leverages `KeyboardAvoidingView` with `behavior={Platform.OS === 'ios' ? 'padding' : 'height'}` so inputs are never obstructed by the numeric keypad.
@@ -471,4 +487,3 @@ flowchart TD
   - Test offline resilience by placing phone in Airplane Mode and logging entries.
   - Test cloud backup restoration.
   - Configure `eas.json` for future automated cloud compilation for Google Play Store and Apple App Store.
-

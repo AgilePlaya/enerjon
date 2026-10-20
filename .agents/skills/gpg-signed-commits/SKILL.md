@@ -32,6 +32,7 @@ Co-authored-by: Gemini <gemini@google.com>
 ```
 
 ### Formatting Rules:
+
 1. **Header Line (Subject)**:
    - **Maximum 64 characters** (hard ceiling).
    - Use conventional commit types: `feat`, `fix`, `docs`, `style`, `refactor`,
@@ -56,6 +57,7 @@ Co-authored-by: Gemini <gemini@google.com>
 All commits must be cryptographically verified.
 
 ### Prerequisite Checks:
+
 1. **Verify GPG Binary**:
    Ensure `git config --global gpg.program` points to the executable:
    ```powershell
@@ -72,8 +74,10 @@ All commits must be cryptographically verified.
    ```
 
 ### Executing a Signed Commit:
+
 To prevent shell escaping and line-break mangling, write the formatted commit
 message to a temporary text file, then invoke Git with `-F`:
+
 ```powershell
 git commit -S -F "path/to/commit-message.txt"
 ```
@@ -83,8 +87,10 @@ git commit -S -F "path/to/commit-message.txt"
 ## 3. Verification Protocol
 
 Always verify the commit signature immediately after committing:
+
 ```powershell
 git log -1 --show-signature
 ```
+
 Confirm the output displays:
 `gpg: Good signature from "AgilePlaya <60707646+AgilePlaya@users.noreply.github.com>"`

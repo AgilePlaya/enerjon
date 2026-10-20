@@ -1,11 +1,13 @@
 # Enerjon - v0.2.1 Implementation Plan
+
 ## Bottom Dock Alignment, Vehicle Switcher Dropdown & Nav Redistribution
 
 ## 1. Executive Summary & Objective
 
 In **v0.2.1**, we resolve persistent bottom navigation bar misalignment, redistribute top-right utilities to the bottom dock, and transform the top-right header into an interactive **Vehicle Switcher Dropdown** that enables switching active vehicles, creating new vehicles, and managing the vehicle fleet.
 
-### Key Deliverables in v0.2.1:
+### Key Deliverables in v0.2.1
+
 1. **Pixel-Perfect Bottom Dock Alignment**:
    - Eliminate React Navigation's default `BottomTabBar` layout quirks by introducing a dedicated **`CustomBottomDockTabBar`** component.
    - Achieve 100% optical symmetry, even tab widths (`flex: 1`), and uniform vertical centering without icon constraint clipping.
@@ -23,7 +25,8 @@ In **v0.2.1**, we resolve persistent bottom navigation bar misalignment, redistr
 
 ## 2. Root Cause Analysis: Bottom Navbar Misalignment
 
-### Why React Navigation Default BottomTabBar Was Misaligned:
+### Why React Navigation Default BottomTabBar Was Misaligned
+
 1. **Compound Icon Hack**:
    - In React Navigation `<Tabs>`, `tabBarIcon` is designed strictly for a single icon glyph (`size: 24`).
    - When custom compound views (`<TabItem>` containing both an icon and a text label) are returned from `tabBarIcon` with `tabBarShowLabel: false`, React Navigation's internal icon slot applies fixed layout constraints that vertically squeeze or displace the label.
@@ -32,8 +35,10 @@ In **v0.2.1**, we resolve persistent bottom navigation bar misalignment, redistr
 3. **Unequal Width Distribution**:
    - On narrower phone screens (e.g. 360–380dp wide devices), fixed min-width tab items cause uneven gaps between tabs.
 
-### The Architectural Solution:
+### The Architectural Solution
+
 Implement a native **Custom Tab Bar Renderer** via `tabBar={(props) => <CustomBottomDock {...props} />}`:
+
 - Total layout control using React Native Flexbox (`flexDirection: 'row'`, `alignItems: 'center'`).
 - Each tab button receives `flex: 1` with centered content (`alignItems: 'center'`, `justifyContent: 'center'`).
 - The active tab renders a soft cyan pill highlight (`#00C2FF1A`) centered around its icon and label.
@@ -45,7 +50,8 @@ Implement a native **Custom Tab Bar Renderer** via `tabBar={(props) => <CustomBo
 
 ### A. Top-Right Vehicle Switcher Pill (`src/components/AppHeader.tsx`)
 
-#### Visual Appearance:
+#### Visual Appearance
+
 - **Pill Container**:
   - Background: `#131F2A` (Card surface)
   - Border: `1px solid rgba(255, 255, 255, 0.08)`
@@ -53,7 +59,8 @@ Implement a native **Custom Tab Bar Renderer** via `tabBar={(props) => <CustomBo
   - Padding: `6px 12px`
   - Flex Row: Car icon (`Ionicons name="car-sport"` or `MaterialCommunityIcons name="car-side"` in cyan), vehicle name (e.g. `"Tata Nexon"` truncated to 12 chars), and a small chevron down.
 
-#### Dropdown Modal / Bottom Sheet (`VehicleSwitcherModal.tsx`):
+#### Dropdown Modal / Bottom Sheet (`VehicleSwitcherModal.tsx`)
+
 - **Header**: `"Vehicle Fleet"` with close icon.
 - **Vehicle Selection List**:
   - Cards showing vehicle name, license plate, fuel type badge (`PETROL`, `DIESEL`, `CNG`, `EV`), and an active checkmark for the currently selected vehicle.
@@ -68,15 +75,16 @@ Implement a native **Custom Tab Bar Renderer** via `tabBar={(props) => <CustomBo
 
 The floating bottom dock will feature 5 symmetrically distributed tabs:
 
-| Tab | Label | Icon | Functionality |
-| :---: | :---: | :---: | :--- |
-| 1 | **DASH** | `Ionicons name="grid"` | Primary Dashboard (efficiency index, monthly spend, price trends) |
-| 2 | **REFUEL** | `MaterialCommunityIcons name="gas-station"` | New Refuel Logger with real-time volume calculation |
-| 3 | **LOGS** | `MaterialCommunityIcons name="history"` | Chronological refueling logs with search & delete |
-| 4 | **STATS** | `Ionicons name="stats-chart"` | Analytics, station price donut chart, 6-month bars, eco score |
-| 5 | **SYNC** | `Ionicons name="cloud-done"` | Cloud Backup to Vercel, Sync status, backup restore & settings |
+| Tab |   Label    |                    Icon                     | Functionality                                                     |
+| :-: | :--------: | :-----------------------------------------: | :---------------------------------------------------------------- |
+|  1  |  **DASH**  |           `Ionicons name="grid"`            | Primary Dashboard (efficiency index, monthly spend, price trends) |
+|  2  | **REFUEL** | `MaterialCommunityIcons name="gas-station"` | New Refuel Logger with real-time volume calculation               |
+|  3  |  **LOGS**  |   `MaterialCommunityIcons name="history"`   | Chronological refueling logs with search & delete                 |
+|  4  | **STATS**  |        `Ionicons name="stats-chart"`        | Analytics, station price donut chart, 6-month bars, eco score     |
+|  5  |  **SYNC**  |        `Ionicons name="cloud-done"`         | Cloud Backup to Vercel, Sync status, backup restore & settings    |
 
-#### Optical Alignment Specifications:
+#### Optical Alignment Specifications
+
 - Container:
   - `height: 62`
   - `borderRadius: 31`

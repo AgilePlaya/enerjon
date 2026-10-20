@@ -1,9 +1,11 @@
 # Enerjon - v0.2.5 Implementation Plan
+
 ## Unified Border Radius, Swipeable Horizontal Pager, Persistent Bottom Dock & 2-Wheeler/4-Wheeler Fleet
 
 ## 1. Executive Summary & Objective
 
 In **v0.2.5**, we elevate the tactile feel and visual elegance of **enerjon** with four key enhancements:
+
 1. **Unified Design System & Border Radius**: Standardize border radius (~`20px`) across all primary interactive and container elements — including buttons, the floating bottom dock, cards, inputs, and header pills — to establish a cohesive, modern squircle design language.
 2. **Persistent Bottom Dock Across All Screens**: Transition Cloud Sync into a native 5th tab page (`SYNC`), ensuring the floating bottom dock is visible at all times across all views.
 3. **Fluid Horizontal Swipe Navigation**: Enable gesture-driven horizontal swiping between all 5 pages (`DASH`, `REFUEL`, `LOGS`, `STATS`, `SYNC`), synchronized seamlessly with the bottom dock's active cyan highlight pill and tap transitions.
@@ -14,25 +16,28 @@ In **v0.2.5**, we elevate the tactile feel and visual elegance of **enerjon** wi
 
 ## 2. Design System: Unified Border Radius (~20px)
 
-### Visual Consistency Analysis:
+### Visual Consistency Analysis
+
 Previously, UI elements used disconnected radii (`borderRadius: 31` on the dock, `12`/`14`/`16` on buttons, `20` on pills). In v0.2.5, we unify around an intentional squircle radius standard:
 
-| UI Element | Radius Token | Value | Rationale |
-| :--- | :--- | :--- | :--- |
-| **Floating Bottom Dock** | `THEME.radii.lg` | `20px` (or `22px`) | Matches cards and action buttons, replacing the hyper-round capsule |
-| **Primary Action Buttons** | `THEME.radii.lg` | `20px` | Bold, tactile touch targets matching the dock's curvature |
-| **Dashboard & Metric Cards** | `THEME.radii.lg` | `20px` | Smooth, modern corner curvature |
-| **Top Header Vehicle Pill** | `THEME.radii.lg` | `20px` | Cohesive squircle pill styling |
-| **Form Input Containers** | `THEME.radii.md` | `16px`–`18px` | Slightly nested radius for inner form fields |
-| **Modal Sheets & Overlays** | `THEME.radii.xl` | `24px` | Top-sheet / bottom-sheet rounded corners |
-| **Dock Active Tab Highlight** | `THEME.radii.md` | `14px`–`16px` | Neatly nested inside the 20px–22px dock frame |
+| UI Element                    | Radius Token     | Value              | Rationale                                                           |
+| :---------------------------- | :--------------- | :----------------- | :------------------------------------------------------------------ |
+| **Floating Bottom Dock**      | `THEME.radii.lg` | `20px` (or `22px`) | Matches cards and action buttons, replacing the hyper-round capsule |
+| **Primary Action Buttons**    | `THEME.radii.lg` | `20px`             | Bold, tactile touch targets matching the dock's curvature           |
+| **Dashboard & Metric Cards**  | `THEME.radii.lg` | `20px`             | Smooth, modern corner curvature                                     |
+| **Top Header Vehicle Pill**   | `THEME.radii.lg` | `20px`             | Cohesive squircle pill styling                                      |
+| **Form Input Containers**     | `THEME.radii.md` | `16px`–`18px`      | Slightly nested radius for inner form fields                        |
+| **Modal Sheets & Overlays**   | `THEME.radii.xl` | `24px`             | Top-sheet / bottom-sheet rounded corners                            |
+| **Dock Active Tab Highlight** | `THEME.radii.md` | `14px`–`16px`      | Neatly nested inside the 20px–22px dock frame                       |
 
 ---
 
 ## 3. Navigation: Swipeable 5-Tab Horizontal Pager
 
-### Architecture:
+### Architecture
+
 Instead of static non-swipeable scene switching, we implement a native `SwipeableTabContainer`:
+
 - Utilizes React Native's high-performance native `ScrollView` with `horizontal={true}`, `pagingEnabled={true}`, `showsHorizontalScrollIndicator={false}`, and `scrollEventThrottle={16}`.
 - Zero third-party binary dependencies, ensuring 100% compatibility with Expo Go v57.0.9 on Android and iOS.
 - Contains 5 full-width pages:
@@ -50,15 +55,20 @@ Instead of static non-swipeable scene switching, we implement a native `Swipeabl
 
 ## 4. Vehicle Fleet: 2-Wheeler vs 4-Wheeler
 
-### Database & Type Specifications:
+### Database & Type Specifications
+
 1. **Type Definition**:
+
    ```typescript
-   export type VehicleCategory = '2-wheeler' | '4-wheeler';
+   export type VehicleCategory = "2-wheeler" | "4-wheeler";
    ```
+
 2. **Schema Migration**:
+
    ```sql
    ALTER TABLE vehicles ADD COLUMN category TEXT NOT NULL DEFAULT '4-wheeler';
    ```
+
 3. **Dynamic Iconography**:
    - `2-wheeler`: `MaterialCommunityIcons name="motorbike"`
    - `4-wheeler`: `Ionicons name="car-sport"`
@@ -73,6 +83,7 @@ Instead of static non-swipeable scene switching, we implement a native `Swipeabl
 ## 5. Agent Memory Persistence (`GEMINI.md`)
 
 Document persistent rules for the project:
+
 - Dark theme palette & electric cyan primary `#00C2FF`.
 - Indian localized units (`₹`, `km`, `liters`, `km/L`).
 - Unified `20px` border radius rules for buttons, docks, and cards.

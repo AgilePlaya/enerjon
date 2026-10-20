@@ -1,4 +1,5 @@
 # Enerjon - v0.2 Implementation Plan
+
 ## Safe Area Ergonomics, Edge-to-Edge Display & Navbar Optical Alignment
 
 ## 1. Executive Summary & Problem Analysis
@@ -22,6 +23,7 @@ Implement industry-standard mobile design patterns and safe-area architecture to
 ## 2. App Design Best Practices Research (Industry Standards)
 
 ### A. Safe Area & Edge-to-Edge Architecture
+
 Modern mobile design guidelines (Google Material Design 3 and Apple Human Interface Guidelines) mandate that applications draw background surfaces edge-to-edge behind system chrome while strictly constraining interactive content within hardware-safe zones.
 
 1. **Never Hardcode Status Bar or Notch Heights**:
@@ -39,6 +41,7 @@ Modern mobile design guidelines (Google Material Design 3 and Apple Human Interf
 ---
 
 ### B. Navbar & Header Optical Alignment Standards
+
 1. **Vertical Centering & Standard App Bar Height**:
    - Material Design specifies a standard top app bar height of `56dp` to `64dp` for mobile phones.
    - All children inside the header must be strictly aligned with `alignItems: 'center'` in a single horizontal row (`flexDirection: 'row'`).
@@ -55,6 +58,7 @@ Modern mobile design guidelines (Google Material Design 3 and Apple Human Interf
 ---
 
 ### C. Floating Bottom Dock Ergonomics
+
 1. **Separation of Icon and Label in React Navigation**:
    - Avoid rendering custom multi-line compound components inside `tabBarIcon` with `tabBarShowLabel: false`. React Navigation's internal icon slot applies fixed layout constraints that cause vertical clipping on some DPIs.
    - **Best Practice**: Either:
@@ -70,12 +74,14 @@ Modern mobile design guidelines (Google Material Design 3 and Apple Human Interf
 
 ### A. `src/components/AppHeader.tsx` (Top Navigation Bar)
 
-#### Issues in v0.1:
+#### Issues in v0.1
+
 - Static `paddingTop: 12` ignores device status bar, notch, and punch-hole camera.
 - Brand logo (28x28 icon + 22px text) lacks baseline alignment and font padding normalization.
 - Right action buttons have mismatched icon sizes (20px vs 26px) and inconsistent optical centers.
 
-#### v0.2 Specification:
+#### v0.2 Specification
+
 ```tsx
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform, StatusBar as RNStatusBar } from 'react-native';
@@ -138,6 +144,7 @@ export function AppHeader({ showSearchIcon = false }: { title?: string; showSear
 ```
 
 Key Fixes in Styles:
+
 - Set `height: 52 + topPadding` to lock the visual bar to a consistent `52dp` content height.
 - `brandText`: Add `includeFontPadding: false` and `lineHeight: 24` to vertically align typography with the 28x28 icon circle.
 - Harmonize all 3 action buttons to `36x36` with identical icon size `19px`.
@@ -146,10 +153,12 @@ Key Fixes in Styles:
 
 ### B. `app/_layout.tsx` (Root Safe Area & System Chrome)
 
-#### Issues in v0.1:
+#### Issues in v0.1
+
 - `<StatusBar style="light" />` did not set `translucent` or `backgroundColor="transparent"`, leading to inconsistent drawing on Android devices with edge-to-edge system bars.
 
-#### v0.2 Specification:
+#### v0.2 Specification
+
 ```tsx
 <SafeAreaProvider style={styles.container}>
   <StatusBar style="light" translucent backgroundColor="transparent" />
@@ -161,16 +170,20 @@ Key Fixes in Styles:
 
 ### C. `app/(tabs)/_layout.tsx` (Floating Bottom Dock)
 
-#### Issues in v0.1:
+#### Issues in v0.1
+
 - Static `bottom: Platform.OS === 'ios' ? 24 : 16` ignores dynamic Android gesture navigation handle heights.
 - Putting custom `<TabItem>` (containing both icon + label) inside `tabBarIcon` causes vertical constraint clipping.
 
-#### v0.2 Specification:
+#### v0.2 Specification
+
 - Use `useSafeAreaInsets()` to calculate `bottom`:
+
   ```tsx
   const insets = useSafeAreaInsets();
   const bottomOffset = Math.max(insets.bottom, 12) + 6;
   ```
+
 - Use a dedicated custom tab bar component (`tabBar={(props) => <FloatingDockTabBar {...props} />}`) OR configure React Navigation options:
   - `tabBarShowLabel: false`
   - Explicit `tabBarItemStyle: { height: 56, justifyContent: 'center', alignItems: 'center' }`
@@ -180,26 +193,33 @@ Key Fixes in Styles:
 
 ### D. `app/modal.tsx` (Vercel Cloud Backup Modal)
 
-#### Issues in v0.1:
+#### Issues in v0.1
+
 - Modal starts with static `paddingTop: 20`, colliding with the Android status bar and selfie camera cutout when presented full-screen or as a modal page.
 
-#### v0.2 Specification:
+#### v0.2 Specification
+
 - Add `useSafeAreaInsets()` to dynamically compute top padding:
+
   ```tsx
   const insets = useSafeAreaInsets();
   const modalTopPadding = Math.max(insets.top, Platform.OS === 'android' ? 24 : 16) + 8;
   ```
+
 - Apply to `headerRow` so close button and title are comfortably clear of any hardware punch-hole.
 
 ---
 
 ### E. Floating Add Button (`src/components/FloatingAddButton.tsx`)
 
-#### Issues in v0.1:
+#### Issues in v0.1
+
 - `bottom: 95` was hardcoded, causing the FAB to sit either too close or too far from the bottom dock on phones with tall gesture navigation insets.
 
-#### v0.2 Specification:
+#### v0.2 Specification
+
 - Dynamic calculation based on dock position:
+
   ```tsx
   const insets = useSafeAreaInsets();
   const fabBottom = Math.max(insets.bottom, 12) + 6 + 64 + 14; // Inset + Dock offset + Dock height + spacing
@@ -234,4 +254,3 @@ Key Fixes in Styles:
   - Verify layout on physical Android phone via Expo Go (confirming selfie camera clearance).
   - Run `npx tsc --noEmit` to verify type safety.
   - Run `npx expo-doctor` to ensure SDK 57 compliance.
-
